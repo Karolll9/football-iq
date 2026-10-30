@@ -4,6 +4,15 @@ import pandas as pd
 # Konfiguracja strony
 st.set_page_config(page_title="Football IQ", page_icon="⚽", layout="wide")
 
+# Funkcja do pobierania danych z buforowaniem (dzięki temu aplikacja działa mega szybko!)
+@st.cache_data
+def load_sheet_data(sheet_url):
+    if "edit" in sheet_url:
+        csv_url = sheet_url.split("/edit")[0] + "/export?format=csv"
+    else:
+        csv_url = sheet_url
+    return pd.read_csv(csv_url)
+
 # Sprawdzenie, czy w adresie URL jest przekazany zawodnik (np. ?player=Michal)
 query_params = st.query_params
 url_player = query_params.get("player", None)
@@ -17,12 +26,7 @@ if url_player:
     
     if sheet_url:
         try:
-            if "edit" in sheet_url:
-                csv_url = sheet_url.split("/edit")[0] + "/export?format=csv"
-            else:
-                csv_url = sheet_url
-            
-            df = pd.read_csv(csv_url)
+            df = load_sheet_data(sheet_url)
             
             player_col = None
             for col in df.columns:
@@ -70,12 +74,7 @@ else:
 
     if sheet_url:
         try:
-            if "edit" in sheet_url:
-                csv_url = sheet_url.split("/edit")[0] + "/export?format=csv"
-            else:
-                csv_url = sheet_url
-            
-            df = pd.read_csv(csv_url)
+            df = load_sheet_data(sheet_url)
             st.success("Sukces! Arkusz zbiorczy został pomyślnie pobrany.")
             
             if menu == "Panel Trenera":
