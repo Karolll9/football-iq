@@ -5,7 +5,6 @@ import pandas as pd
 st.set_page_config(page_title="Football IQ", page_icon="⚽", layout="wide")
 
 # Sprawdzenie, czy w adresie URL jest przekazany zawodnik (np. ?player=Michal)
-# Dzięki temu zawodnik ma swój stały link i widzi tylko swoje dane!
 query_params = st.query_params
 url_player = query_params.get("player", None)
 
@@ -25,8 +24,6 @@ if url_player:
             
             df = pd.read_csv(csv_url)
             
-            # Zakładamy, że w arkuszu kolumna z imieniem i nazwiskiem nazywa się "Zawodnik" lub "Imię"
-            # Szukamy kolumny pasującej do zawodnika (sprawdzamy najczęstsze nazwy)
             player_col = None
             for col in df.columns:
                 if any(name in col.lower() for name in ["zawodnik", "imię", "nazwisko", "player", "gracz"]):
@@ -34,11 +31,10 @@ if url_player:
                     break
             
             if player_col:
-                # Filtrowanie wierszy tylko dla tego zawodnika (wielkość liter nie ma znaczenia)
                 player_df = df[df[player_col].astype(str).str.strip().str.lower() == url_player.strip().lower()]
                 
                 if not player_df.empty:
-                    st.success( znaleziono mecze dla: **{url_player}** )
+                    st.success(f"Znaleziono mecze dla: **{url_player}**")
                     st.dataframe(player_df, use_container_width=True)
                 else:
                     st.warning(f"Nie znaleziono jeszcze żadnych wpisów dla zawodnika: **{url_player}** w tym arkuszu.")
@@ -55,7 +51,6 @@ else:
     # --- STANDARDOWY PANEL (TRENER / GŁÓWNY WIDOK) ---
     st.title("⚽ Football IQ - Panel Trenera i Zawodnika")
     
-    # Menu boczne
     menu = st.sidebar.selectbox("Wybierz widok", ["Panel Trenera", "Profil Zawodnika"])
 
     pozycje = [
@@ -71,7 +66,6 @@ else:
 
     wybrana_pozycja = st.sidebar.selectbox("Wybierz pozycję", pozycje)
 
-    # Pole na link do arkusza zbiorczego
     sheet_url = st.text_input("Wklej link do Arkusza Google (zbiorczego):")
 
     if sheet_url:
@@ -88,7 +82,6 @@ else:
                 st.header("📋 Panel Trenera")
                 st.info(f"Aktywna analiza dla pozycji: **{wybrana_pozycja}**")
                 
-                # Mapowanie kolumn dla poszczególnych pozycji
                 if wybrana_pozycja == "ŚO (Środkowy Obrońca)":
                     st.write("📌 **Mapowanie dla Środkowego Obrońcy:**")
                     st.markdown("- Ocena końcowa: **AF** | Procenty: **AC, AD, AE** | Oceny szczegółowe: **Y, Z, AA, AB** | Taktyczna i średnia: **D-H**")
@@ -122,7 +115,6 @@ else:
                 st.header("👤 Profil Zawodnika (Widok Ogólny)")
                 st.info("Wskazówka: Aby wysłać zawodnikowi dedykowany link do jego profilu, dopisz na końcu adresu aplikacji: `?player=ImięNazwisko` (np. `?player=Michal`)")
                 
-                # Możliwość wyboru zawodnika z listy rozwijanej z poziomu aplikacji
                 player_col = None
                 for col in df.columns:
                     if any(name in col.lower() for name in ["zawodnik", "imię", "nazwisko", "player", "gracz"]):
